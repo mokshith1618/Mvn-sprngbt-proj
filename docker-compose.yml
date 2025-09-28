@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14
+    container_name: fooddb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgress
+      POSTGRES_DB: fooddb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./clean_foods.sql:/docker-entrypoint-initdb.d/clean_foods.sql
+      - ./clean_foods.csv:/docker-entrypoint-initdb.d/clean_foods.csv
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fooddb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: foodapp
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/fooddb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgress
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
