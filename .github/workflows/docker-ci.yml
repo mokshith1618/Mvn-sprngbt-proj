@@ -1,0 +1,38 @@
+name: CI with Docker Compose
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  docker-compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      - name: Build and run containers
+        run: docker-compose up -d --build
+
+      - name: Run app health check
+        run: |
+          echo "Checking app on port 8080..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/ | grep -q "<html"; then
+              echo "App is up!"
+              exit 0
+            fi
+            echo "Waiting for app..."
+            sleep 5
+          done
+          echo "App did not start in time" && exit 1
+
+      - name: Tear down
+        if: always()
+        run: docker-compose down
+
