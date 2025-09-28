@@ -24,7 +24,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/fooddb
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgress
+      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       db:
         condition: service_healthy
