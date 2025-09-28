@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Clean Foods Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f6f9;
+            color: #333;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        ul#suggestions {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-left: 0;
+            list-style: none;
+            margin-top: 5px;
+        }
+        ul#suggestions li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+        ul#suggestions li:hover {
+            background: #eaf2f8;
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.2rem; }
+            input, button { font-size: 0.9rem; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Search Foods</h1>
+    <form th:action="@{/search}" method="post">
+        <div>
+            <label>Food:</label>
+            <input type="text" id="foodInput" name="food" autocomplete="off" required />
+            <ul id="suggestions"></ul>
+        </div>
+        <div>
+            <label>Days:</label>
+            <input type="number" name="days" min="1" required/>
+        </div>
+        <div>
+            <label>Quantity (g):</label>
+            <input type="number" name="quantity" required/>
+        </div>
+        <button type="submit">View</button>
+    </form>
+</div>
+<script>
+const input = document.getElementById('foodInput');
+const suggestions = document.getElementById('suggestions');
+
+input.addEventListener('input', function() {
+    const query = input.value;
+    if(query.length === 0){
+        suggestions.innerHTML = '';
+        return;
+    }
+    fetch(`/api/search?prefix=${query}`)
+        .then(res => res.json())
+        .then(data => {
+            suggestions.innerHTML = '';
+            data.forEach(food => {
+                const li = document.createElement('li');
+                li.textContent = food.productName;
+                li.style.cursor = 'pointer';
+                li.addEventListener('click', () => {
+                    input.value = food.productName;
+                    suggestions.innerHTML = '';
+                });
+                suggestions.appendChild(li);
+            });
+        });
+});
+</script>
+</body>
+</html>
