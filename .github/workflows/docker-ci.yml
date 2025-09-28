@@ -47,7 +47,12 @@ jobs:
             sleep 5
           done
           echo "App did not start in time" && exit 1
-
+      - name: Debug logs
+        if: failure()
+        run: |
+          docker ps -a
+          docker logs fooddb
+          docker logs foodapp
       - name: Tear down
         if: always()
         run: docker-compose down
