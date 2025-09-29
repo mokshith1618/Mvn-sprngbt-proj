@@ -18,22 +18,22 @@ public class SearchController {
         this.repository = repository;
     }
 
-    // Index page: fetch top 50 foods for display
+    // Index page: only product names
     @GetMapping("/")
     public String home(Model model) {
-        List<CleanFoods> foods = repository.findTop50ByOrderByProductNameAsc();
+        List<String> foods = repository.findTop50ProductNames();
         model.addAttribute("foods", foods);
         return "index";
     }
 
-    // Autocomplete API: fetch top 10 matching foods
+    // Autocomplete: only product names
     @GetMapping("/api/search")
     @ResponseBody
-    public List<CleanFoods> searchPrefix(@RequestParam String prefix) {
-        return repository.findTop10ByProductNameStartingWithIgnoreCase(prefix);
+    public List<String> searchPrefix(@RequestParam String prefix) {
+        return repository.findTop10ProductNamesByPrefix(prefix);
     }
 
-    // Search POST: calculate nutrient values only for selected food
+    // Details: fetch full entity with all 100 columns
     @PostMapping("/search")
     public String search(@RequestParam String food,
                          @RequestParam int days,
@@ -46,7 +46,6 @@ public class SearchController {
         if (f != null) {
             double factor = quantity / 100.0 * days;
 
-            // Only include non-zero Double fields
             for (Field field : CleanFoods.class.getDeclaredFields()) {
                 if (field.getType() == Double.class) {
                     field.setAccessible(true);

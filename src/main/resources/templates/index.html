@@ -99,25 +99,25 @@ const suggestions = document.getElementById('suggestions');
 
 input.addEventListener('input', function() {
     const query = input.value;
-    if(query.length === 0){
-        suggestions.innerHTML = '';
-        return;
-    }
-    fetch(`/api/search?prefix=${query}`)
-        .then(res => res.json())
-        .then(data => {
-            suggestions.innerHTML = '';
-            data.forEach(food => {
-                const li = document.createElement('li');
-                li.textContent = food.productName;
-                li.style.cursor = 'pointer';
-                li.addEventListener('click', () => {
-                    input.value = food.productName;
-                    suggestions.innerHTML = '';
-                });
-                suggestions.appendChild(li);
-            });
-        });
+if (query.length === 0) {
+suggestions.innerHTML = '';
+return;
+}
+fetch(`/api/search?prefix=${encodeURIComponent(query)}`)
+.then(res => res.json())
+.then(data => {
+suggestions.innerHTML = '';
+data.forEach(productName => { 
+const li = document.createElement('li');
+li.textContent = productName;
+li.style.cursor = 'pointer';
+li.addEventListener('click', () => {
+input.value = productName;
+suggestions.innerHTML = '';
+});
+suggestions.appendChild(li);
+});
+});
 });
 </script>
 </body>

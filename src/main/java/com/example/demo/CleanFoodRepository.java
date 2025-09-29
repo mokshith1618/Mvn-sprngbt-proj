@@ -9,14 +9,19 @@ import org.springframework.data.repository.query.Param;
 
 public interface CleanFoodRepository extends JpaRepository<CleanFoods, Long> {
 
+    // Fetch full food when selected
     @Query("SELECT c FROM CleanFoods c WHERE c.productName = :productName")
     CleanFoods findFirstByProductName(@Param("productName") String productName);
 
-    @Query("SELECT c FROM CleanFoods c ORDER BY c.productName ASC")
-    List<CleanFoods> findTop50ByOrderByProductNameAsc();
+    // Fetch only product names for homepage (lightweight)
+    @Query("SELECT c.productName FROM CleanFoods c ORDER BY c.productName ASC")
+    List<String> findTop50ProductNames();
 
-    List<CleanFoods> findTop10ByProductNameStartingWithIgnoreCase(String prefix);
+    // Autocomplete: only product names
+    @Query("SELECT c.productName FROM CleanFoods c WHERE LOWER(c.productName) LIKE LOWER(CONCAT(:prefix, '%'))")
+    List<String> findTop10ProductNamesByPrefix(@Param("prefix") String prefix);
 
+    // If you ever need to stream full foods
     @Query("SELECT c FROM CleanFoods c ORDER BY c.productName ASC")
     Stream<CleanFoods> streamAllFoods();
 }
